@@ -1,0 +1,43 @@
+server:
+  port: 8080
+
+spring:
+  security:
+    user:
+      name: admin
+      password: admin123
+
+  jwt:
+    access-token:expiration: 3600
+    refresh-token-expiration: 604800
+    secret: "p/mGI/kycHLE6Utw+d6a58HyuaX2FjT80A66Y+qJS4WgzitXotjeM56bBkoN2/Dk7v8wT1Sx2Y3Zp9GQ4qHbLk"
+
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/ecommerce?createDatabaseIfNotExist=true
+    username: root
+    password: mani
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ""
+    password: ""
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+
