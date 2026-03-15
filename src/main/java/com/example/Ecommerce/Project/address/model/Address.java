@@ -1,11 +1,14 @@
 package com.example.Ecommerce.Project.address.model;
 
 import com.example.Ecommerce.Project.audit.AuditMetaData;
+import com.example.Ecommerce.Project.order.model.Order;
 import com.example.Ecommerce.Project.user.model.User;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.boot.ssl.SslBundleKey;
 
+import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 @Entity
+@Builder
 public class Address extends AuditMetaData {
 
     @Id
@@ -27,7 +31,11 @@ public class Address extends AuditMetaData {
     private String pinCode;
 
     @ToString.Exclude
-    @ManyToMany(mappedBy = "addresses")
-    private List<User> userList = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name= "user_id")
+    private User user;
+
+    @OneToMany(mappedBy = "address")
+    private List<Order> orders = new ArrayList<>();
 
 }

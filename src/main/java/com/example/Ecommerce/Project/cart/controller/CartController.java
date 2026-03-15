@@ -11,6 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -35,10 +38,10 @@ public class CartController {
                                                                        @PathVariable Long productId) {
 
         String message = cartService.deleteProductFromCart(cartId, productId);
-           ApiResponse<String> response = ApiResponse.<String>builder()
-                   .status(Status.SUCCESS)
-                   .message(message)
-                   .build();
+        ApiResponse<String> response = ApiResponse.<String>builder()
+                .status(Status.SUCCESS)
+                .message(message)
+                .build();
            return ResponseEntity.ok(response);
        }
 
@@ -46,13 +49,49 @@ public class CartController {
        public ResponseEntity<ApiResponse<?>> updateProductQuantity(@PathVariable Long productId,
                                                                    @PathVariable Integer quantity) {
 
-            cartService.updateProductQuantity(productId, quantity);
             ApiResponse<?> response = ApiResponse.builder()
-                   .status(Status.SUCCESS)
-                   .message("quantity updated successfully")
-                   .build();
+                    .status(Status.SUCCESS)
+                    .message("quantity updated successfully")
+                    .data(cartService.updateProductQuantity(productId, quantity))
+                    .build();
            return ResponseEntity.ok(response);
        }
+
+       @GetMapping("/carts")
+       public ResponseEntity<ApiResponse<List<CartDTO>>> getAllCarts() {
+
+           List<CartDTO> dtos =  cartService.getAllCarts();
+
+           boolean isEmpty = dtos.isEmpty();
+           Status status = isEmpty ? Status.NO_CONTENT : Status.SUCCESS;
+           String message = dtos.isEmpty() ?
+                   "No carts found!" : "Carts fetched Successfully!";
+
+           ApiResponse<List<CartDTO>> response = ApiResponse.<List<CartDTO>>builder()
+                   .status(Status.SUCCESS)
+                   .message(message)
+                   .data(dtos)
+                   .build();
+           return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/carts/users/cart")
+    ResponseEntity<ApiResponse<CartDTO>> findCartById() {
+
+        CartDTO cart  = cartService.getCart();
+        boolean isEmpty = cart == null;
+        Status status = isEmpty ? Status.NOT_FOUND : Status.SUCCESS;
+        String message = cart == null?
+                "No cart found!" : "Cart fetched Successfully!";
+
+        ApiResponse<CartDTO> response = ApiResponse.<CartDTO>builder()
+                .status(status)
+                .message(message)
+                .data(cart)
+                .build();
+        return ResponseEntity.ok(response);
+
+    }
 
 }
 

@@ -1,5 +1,9 @@
 package com.example.Ecommerce.Project.product.service;
 
+import com.example.Ecommerce.Project.cart.dto.response.CartDTO;
+import com.example.Ecommerce.Project.cart.model.Cart;
+import com.example.Ecommerce.Project.cart.repo.CartRepo;
+import com.example.Ecommerce.Project.cart.service.CartService;
 import com.example.Ecommerce.Project.category.categoryrepo.CategoryRepo;
 import com.example.Ecommerce.Project.category.model.Category;
 import com.example.Ecommerce.Project.exeptionhandler.customexceptions.ProductAlreadyExist;
@@ -16,12 +20,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ProductService{
 
     private final ProductRepo productRepo;
     private final CategoryRepo categoryRepo;
+    private final CartRepo cartRepo;
+    private final CartService cartService;
+
 
     public ProductResponseDTO addProductToCategory(ProductRequestDTO dto, Long categoryId) {
 
@@ -108,12 +118,30 @@ public class ProductService{
             existingProduct.setSpecialPrice(specialPrice);
         }
        Product savedProduct =  productRepo.save(existingProduct);
+
+//          Getting Carts by Product Id
+//        List<Cart> cartList = new ArrayList<>();
+//        List<CartItem> items = savedProduct.getProducts();
+//        for (CartItem item : items)
+//           cartList.add(item.getCart());
+        List<Cart> carts = cartRepo.findCartsByProductId(savedProduct.getProductId());
+        List<CartDTO> cartDTOS = new ArrayList<>();
+        for (Cart cart : carts) {
+            cartDTOS.add(CartDTO.toDTO(cart, cart.getCartItemsList()));
+        }
+        cartDTOS.forEach(cart -> cartService.updateProductInCarts(cart.getCartId(), savedProduct.getProductId()));
+
+
+
        return ProductResponseDTO.toDTO(savedProduct);
     }
 
     public void deleteProduct(long productId) {
         Product product = productRepo.findById(productId).orElseThrow(
                 ()-> new EntityNotFoundException("Product not found"));
+
+        List<Cart> carts = cartRepo.findCartsByProductId(product.getProductId());
+        carts.forEach(cart -> cartService.deleteProductFromCart(cart.getCartId(),productId));
         productRepo.deleteById(productId);
     }
 

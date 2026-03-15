@@ -3,6 +3,7 @@ package com.example.Ecommerce.Project.product.model;
 import com.example.Ecommerce.Project.audit.AuditMetaData;
 import com.example.Ecommerce.Project.cartitem.model.CartItem;
 import com.example.Ecommerce.Project.category.model.Category;
+import com.example.Ecommerce.Project.orderitem.model.OrderItem;
 import com.example.Ecommerce.Project.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -49,4 +50,14 @@ public class Product extends AuditMetaData {
               fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<CartItem> products = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product" ,cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+            fetch = FetchType.EAGER)
+    @ToString.Exclude
+    private List<OrderItem>  orderItems = new ArrayList<>();
+
+
 }
+
+
+
