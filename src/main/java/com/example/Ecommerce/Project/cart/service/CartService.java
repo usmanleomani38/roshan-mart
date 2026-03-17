@@ -16,6 +16,7 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityManager;
 
@@ -37,7 +38,7 @@ public class CartService {
     private final UserRepo userRepo;
 
     @Transactional
-    public CartDTO addProductToCart(Long productId, Integer quantity) throws JsonProcessingException {
+    public CartDTO addProductToCart(Long productId, Integer quantity) {
 
         // Find Existing cart or Create new one
         // Retrieve Product Details
@@ -62,14 +63,16 @@ public class CartService {
 
         if (cartItem != null) {
             cartItem.setQuantity(cartItem.getQuantity() + quantity);
+            cart.getCartItemsList().add(cartItem);
             cartItemRepo.save(cartItem);
         } else {
             CartItem newCartItem = new CartItem();
             newCartItem.setProduct(product);
             newCartItem.setCart(cart);
             newCartItem.setQuantity(quantity);
-            newCartItem.setProductPrice(product.getPrice());
+            newCartItem.setProductPrice(product.getSpecialPrice());
             newCartItem.setDiscount(product.getDiscount());
+            cart.getCartItemsList().add(newCartItem);
             cartItemRepo.save(newCartItem);
 
             product.setQuantity(product.getQuantity());
@@ -92,6 +95,21 @@ public class CartService {
             return cartRepo.save(newCart);
         } else
             return cart;
+    }
+    public String deleteProductFromCartByUserId(Long productId) {
+
+        Cart cart = cartRepo.findById(getCurrentUser().getCart().getCartId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cart does not exist"));
+        CartItem cartItem = cartItemRepo.findCartItemByCartIdAndProductId(cart.getCartId(), productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product does not exist"));
+
+
+        double cartPrice = cart.getTotalPrice()
+                - (cartItem.getProductPrice() * cartItem.getQuantity());
+
+        cart.setTotalPrice(cartPrice);
+        cartItemRepo.deleteCartItemByCartIdAndProductId(cart.getCartId(), productId);
+        return "Product removed from the cart successfully!";
     }
 
     // Delete Product
@@ -118,14 +136,12 @@ public class CartService {
         Cart cart = cartRepo.findById(cartId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart does not exist"));
         CartItem cartItem = cartItemRepo.findCartItemByCartIdAndProductId(cartId, productId)
-                .orElse(null);
-        if (cartItem == null)
-            throw new ResourceNotFoundException("Product does not exist");
+                .orElseThrow(() -> new ResourceNotFoundException("Product does not exist"));
 
         double cartPrice = cart.getTotalPrice()
-                - (cartItem.getProductPrice() * cartItem.getQuantity());
-
+                - (cartItem.getProduct().getSpecialPrice() * cartItem.getQuantity());
         cart.setTotalPrice(cartPrice);
+        cartRepo.save(cart);
         cartItemRepo.deleteCartItemByCartIdAndProductId(cartId, productId);
         return "Product removed from the cart successfully!";
     }
@@ -151,10 +167,10 @@ public class CartService {
         cartItem.setQuantity(quantity);
         cartItem.setProductPrice(product.getPrice());
         cartItem.setDiscount(product.getDiscount());
-
+        int oldQuantity = cartItem.getQuantity();
         cartItemRepo.save(cartItem);
 
-        int quantityDifference = quantity - cartItem.getQuantity();
+        int quantityDifference = quantity - oldQuantity;
         cart.setTotalPrice(cart.getTotalPrice() + (product.getSpecialPrice() * quantityDifference));
         cartRepo.save(cart);
         return CartDTO.toDTO(cart, cart.getCartItemsList());
@@ -182,20 +198,11 @@ public class CartService {
 
     public CartDTO getCart() {
 
-//        Cart cart = null;
-//         if(userRepo.existsById(userId)) {
-//             cart = getCartByUserId(userId);
-//             if (cart == null)
-//                 throw new ResourceNotFoundException("User has no cart!");
-//
-//             return CartDTO.toDTO(cart, cart.getCartItemsList());
-//         }
-//        throw new ResourceNotFoundException("User not found!");
-
-        Cart cart = findByCartIdAndUserId(getCurrentUserId(),
-                getCurrentUser().getCart().getCartId())
-                .orElseThrow(()-> new ResourceNotFoundException("Cart not found!"));
+        Cart cart = getCurrentUser().getCart();
+        if(cart == null)
+            throw new ResourceNotFoundException("no cart found");
         return CartDTO.toDTO(cart, cart.getCartItemsList());
+
     }
 
     public  Cart getCartByUserId(Long userId) {
@@ -253,4 +260,17 @@ public class CartService {
        cartItemRepo.save(cartItem);
 
     }
+
+    @Transactional
+    public String deleteCartByUser() {
+
+        Long userId = getCurrentUserId();
+        if (!cartRepo.existsByUser_UserId(userId))
+            throw new ResourceNotFoundException("Cart not found!");
+        cartItemRepo.deleteCartItemsByUserId(userId);
+        cartRepo.deleteCartByUserId(userId);
+     //   cartRepo.deleteCartByUserId(userId);
+        return "Cart Deleted Successfully!";
+    }
+
 }

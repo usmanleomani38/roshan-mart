@@ -45,7 +45,20 @@ public class CartController {
            return ResponseEntity.ok(response);
        }
 
-       @PutMapping("carts/products/{productId}/quantity/{quantity}")
+    @DeleteMapping("carts/products/{productId}")
+    public ResponseEntity<ApiResponse<String>>deleteProductFromCartByUserId(
+            @PathVariable Long productId) {
+
+        String message = cartService.deleteProductFromCartByUserId( productId);
+        ApiResponse<String> response = ApiResponse.<String>builder()
+                .status(Status.SUCCESS)
+                .message(message)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+
+    @PutMapping("carts/products/{productId}/quantity/{quantity}")
        public ResponseEntity<ApiResponse<?>> updateProductQuantity(@PathVariable Long productId,
                                                                    @PathVariable Integer quantity) {
 
@@ -92,6 +105,21 @@ public class CartController {
         return ResponseEntity.ok(response);
 
     }
+
+    @DeleteMapping("/carts/user")
+    public ResponseEntity<ApiResponse<String>>deleteCartByUser() {
+
+        String message = cartService.deleteCartByUser();
+        ApiResponse<String> response = ApiResponse.<String>builder()
+                .status(Status.SUCCESS)
+                .message(message)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
 
 }
 

@@ -3,10 +3,11 @@ package com.example.Ecommerce.Project.cartitem.dto.response;
 import com.example.Ecommerce.Project.product.model.Product;
 import lombok.*;
 
-@AllArgsConstructor
-@NoArgsConstructor
+
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class ProductsInCart {
 
@@ -16,12 +17,10 @@ public class ProductsInCart {
     private double discount;
     private double price;
     private double specialPrice;
-    private Integer totalItems;
-    private int quantity;
+    //private Integer totalItems;
     private String image;
 
-    public  ProductsInCart toDTO(Product product) {
-
+    public static ProductsInCart toDTO(Product product) {
 
         return ProductsInCart.builder()
                 .productId(product.getProductId())
@@ -33,4 +32,5 @@ public class ProductsInCart {
                 .image(product.getImage())
                 .build();
     }
+
 }

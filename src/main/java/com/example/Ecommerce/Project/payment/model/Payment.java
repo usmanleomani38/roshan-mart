@@ -1,4 +1,4 @@
-package com.example.Ecommerce.Project.payement.model;
+package com.example.Ecommerce.Project.payment.model;
 
 
 import com.example.Ecommerce.Project.audit.AuditMetaData;
@@ -23,13 +23,13 @@ public class Payment extends AuditMetaData {
     @OneToOne(mappedBy = "payment", cascade = {CascadeType.MERGE, CascadeType.PERSIST},
             orphanRemoval = true)
     private Order order;
-    private Long paymentGatewayId;
+    private String paymentGatewayId;
     private String paymentGatewayStatus;
     private String paymentGatewayResponseMessage;
     private String paymentGatewayName;
 
 
-    public Payment(Long paymentGatewayId,
+    public Payment(String paymentGatewayId,
                    Long paymentId,
                    String paymentGatewayStatus,
                    String paymentGatewayResponseMessage,

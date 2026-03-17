@@ -28,7 +28,7 @@ public class Cart extends AuditMetaData {
     @ToString.Exclude
     private User user;
 
-    @OneToMany(mappedBy = "cart", cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+    @OneToMany(mappedBy = "cart", cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE},
                orphanRemoval = true)
     private List<CartItem> cartItemsList = new ArrayList<>();
 

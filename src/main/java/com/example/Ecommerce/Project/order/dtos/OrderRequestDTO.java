@@ -13,7 +13,7 @@ public class OrderRequestDTO {
     private String paymentMethod;
     private String paymentGatewayName;
     private String paymentGatewayId;
-    private String paymentGatewaystatus;
-    private String payementResponseMessage;
+    private String paymentGatewayStatus;
+    private String paymentResponseMessage;
 
 }

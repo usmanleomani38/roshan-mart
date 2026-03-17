@@ -7,7 +7,6 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 @Getter
 @Setter
@@ -28,8 +27,8 @@ public class CartDTO {
         List<ProductDTO> productDTOS = new ArrayList<>();
         for (CartItem item : items) {
             itemQuantity = item.getQuantity();
-            ProductDTO dto = ProductDTO.toDTO(item.getProduct(),itemQuantity);
-            productDTOS.add(dto);
+            productDTOS.add(ProductDTO.toDTO(item.getProduct(),itemQuantity));
+
         }
         return CartDTO.builder()
                 .cartId(cart.getCartId())

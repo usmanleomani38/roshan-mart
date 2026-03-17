@@ -3,7 +3,7 @@ package com.example.Ecommerce.Project.order.model;
 import com.example.Ecommerce.Project.address.model.Address;
 import com.example.Ecommerce.Project.audit.AuditMetaData;
 import com.example.Ecommerce.Project.orderitem.model.OrderItem;
-import com.example.Ecommerce.Project.payement.model.Payment;
+import com.example.Ecommerce.Project.payment.model.Payment;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -19,6 +19,7 @@ import java.util.List;
 @Builder
 @ToString
 @Entity
+@Table(name = "orders")
 public class Order extends AuditMetaData {
 
     @Id
@@ -30,7 +31,6 @@ public class Order extends AuditMetaData {
     private LocalDateTime orderDate;
     private String status;
     private double totalAmount;
-    private String paymentId;
 
     @OneToMany(mappedBy = "order", cascade = {CascadeType.MERGE, CascadeType.PERSIST},
             orphanRemoval = true)

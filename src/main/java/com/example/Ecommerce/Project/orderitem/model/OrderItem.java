@@ -17,7 +17,7 @@ public class OrderItem extends AuditMetaData {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String orderItemId;
+    private Long orderItemId;
     private Double discount;
     private Double orderedProductPrice;
     private Integer quantity;
@@ -25,7 +25,8 @@ public class OrderItem extends AuditMetaData {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
-    private Order Order;
+    @ToString.Exclude
+    private Order order;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
